@@ -96,7 +96,7 @@ EnemyTank.prototype.update = function () {
 
 };
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
 
@@ -105,6 +105,10 @@ function preload() {
     game.load.image('bullet', 'assets/imgs/bullet.png');
     game.load.image('earth', 'assets/imgs/scorched_earth.png');
     game.load.image('gameover', 'assets/imgs/gameover.jpg');
+    game.load.image('left', 'assets/imgs/left.png');
+    game.load.image('right', 'assets/imgs/right.png');
+    game.load.image('up', 'assets/imgs/up.png');
+    game.load.image('down', 'assets/imgs/down.png');
     game.load.spritesheet('kaboom', 'assets/imgs/explosion.png', 64, 64, 23);
 
 }
@@ -135,6 +139,8 @@ var currentScore = 0;
 var health = 100;
 //  Create some baddies to waste :)
 enemies = [];
+var buttonLeft, buttonUp, buttonDown, buttonRight;
+var left, right, up, down;
 
 function create() {
 
@@ -142,7 +148,7 @@ function create() {
     game.world.setBounds(-1000, -1000, 2000, 2000);
 
     //  Our tiled scrolling background
-    land = game.add.tileSprite(0, 0, 800, 600, 'earth');
+    land = game.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'earth');
     land.fixedToCamera = true;
 
     //  The base of our tank
@@ -212,6 +218,57 @@ function create() {
 
     cursors = game.input.keyboard.createCursorKeys();
     currentQuestion = Math.floor(Math.random() * 10);
+
+    if (!game.device.desktop) {
+        const ratio = window.innerHeight / 6;
+        // control = game.add.sprite(0, window.innerHeight - (ratio * 2), 'control');
+        // control.fixedToCamera = true;
+        // control.alpha = 0.4;
+        // control.width = ratio
+        // control.height = ratio;
+
+        buttonLeft = game.add.button(10, window.innerHeight - ratio, "left");
+        buttonLeft.fixedToCamera = true;
+        buttonLeft.alpha = 0.4;
+        buttonLeft.width = ratio / 2;
+        buttonLeft.height = ratio / 2;
+        buttonLeft.events.onInputDown.add(function () { left = true });
+        buttonLeft.events.onInputUp.add(function () { left = false });
+        buttonLeft.events.onInputOver.add(function () { left = true });
+        buttonLeft.events.onInputOut.add(function () { left = false });
+
+        buttonRight = game.add.button(ratio, window.innerHeight - ratio, "right");
+        buttonRight.fixedToCamera = true;
+        buttonRight.width = ratio / 2;
+        buttonRight.height = ratio / 2;
+        buttonRight.alpha = 0.4;
+        buttonRight.events.onInputDown.add(function () { right = true });
+        buttonRight.events.onInputUp.add(function () { right = false });
+        buttonRight.events.onInputOver.add(function () { right = true });
+        buttonRight.events.onInputOut.add(function () { right = false });
+
+        buttonDown = game.add.button(window.innerWidth - (ratio * 2), window.innerHeight - ratio, "down");
+        buttonDown.fixedToCamera = true;
+        buttonDown.width = ratio / 2;
+        buttonDown.height = ratio / 2;
+        buttonDown.alpha = 0.4;
+        buttonDown.events.onInputDown.add(function () { down = true });
+        buttonDown.events.onInputUp.add(function () { down = false });
+        buttonDown.events.onInputOver.add(function () { down = true });
+        buttonDown.events.onInputOut.add(function () { down = false });
+
+
+        buttonUp = game.add.button(window.innerWidth - (ratio), window.innerHeight - ratio, "up");
+        buttonUp.fixedToCamera = true;
+        buttonUp.width = ratio / 2;
+        buttonUp.height = ratio / 2;
+        buttonUp.alpha = 0.4;
+        buttonUp.events.onInputDown.add(function () { up = true; });
+        buttonUp.events.onInputUp.add(function () { up = false });
+        buttonUp.events.onInputOver.add(function () { up = true });
+        buttonUp.events.onInputOut.add(function () { up = false });
+
+    }
 }
 
 function update() {
@@ -229,14 +286,14 @@ function update() {
         }
     }
 
-    if (cursors.left.isDown) {
+    if (cursors.left.isDown || left) {
         tank.angle -= 2;
     }
-    else if (cursors.right.isDown) {
+    else if (cursors.right.isDown || right) {
         tank.angle += 2;
     }
 
-    if (cursors.up.isDown) {
+    if (cursors.up.isDown || up) {
         //  The speed we'll travel at
         currentSpeed = 300;
     }
@@ -277,8 +334,11 @@ function gameOver() {
     }
     gameover = game.add.sprite(300, 150, 'gameover');
     gameover.fixedToCamera = true;
+    game.input.onDown.add(removeGameover, this);
+}
 
-    game.input.onDown.add(() => gameover.kill(), this);
+function removeGameover() {
+    gameover.kill()
 }
 function bulletHitPlayer(tank, bullet) {
     health--;
@@ -320,7 +380,7 @@ function fire() {
 function render() {
 
     game.debug.text('Your Score: ' + currentScore, 32, 32);
-    game.debug.text('Your Health: ' + health, 32,64);
+    game.debug.text('Your Health: ' + health, 32, 64);
     game.debug.text('What is the square root of the number ' + (Math.pow(currentQuestion, 2)) + "?", 256, 32);
 
 
