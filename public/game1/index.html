@@ -217,7 +217,7 @@ function create ()
     introButtonFocused = this.add.sprite(CanvasWidth/2, CanvasHeight/2 + 100, 'button-focus').setOrigin(0.5).setInteractive();
     introButtonFocused.visible = false;
 
-    introButton.setInteractive().on('pointerover', function (event){
+    introButton.setInteractive().on('pointerover', function (pointer, localX, localY, event){
         if (paused)
         {
             introButton.visible = false;
@@ -226,7 +226,7 @@ function create ()
         }
     });
 
-    introButtonHovered.setInteractive().on('pointerout', function (event){
+    introButtonHovered.setInteractive().on('pointerout', function (pointer, localX, localY, event){
         if (paused)
         {
             introButton.visible = true;
@@ -235,7 +235,7 @@ function create ()
         }
     });
 
-    introButtonHovered.setInteractive().on('pointerdown', function (event){
+    introButtonHovered.setInteractive().on('pointerdown', function (pointer, localX, localY, event){
         if (paused)
         {
             introButton.visible = false;
@@ -244,7 +244,7 @@ function create ()
         }
     });
 
-    introButtonFocused.setInteractive().on('pointerover', function (event){
+    introButtonFocused.setInteractive().on('pointerover', function (pointer, localX, localY, event){
         if (paused)
         {
             introButton.visible = false;
@@ -253,7 +253,7 @@ function create ()
         }
     });
 
-    introButtonFocused.setInteractive().on('pointerout', function (event){
+    introButtonFocused.setInteractive().on('pointerout', function (pointer, localX, localY, event){
         if (paused)
         {
             introButton.visible = true;
@@ -262,7 +262,7 @@ function create ()
         }
     });
 
-    introButtonFocused.setInteractive().on('pointerup', function (event){
+    introButtonFocused.setInteractive().on('pointerup', function (pointer, localX, localY, event){
         if (paused)
         {
             introButton.visible = false;
