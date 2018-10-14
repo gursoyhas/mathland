@@ -235,6 +235,23 @@ function create ()
         }
     });
 
+
+    gameObject.setInteractive().on('pointerup', function(pointer, localX, localY, event){
+        if (paused)
+        {
+            introButton.visible = false;
+            introButtonHovered.visible = false;
+            introButtonFocused.visible = false;
+            introBG.visible = false;
+            introHeader.visible = false;
+            introLine1.visible = false;
+            introLine2.visible = false;
+            introLine3.visible = false;
+            buttonText.visible = false;
+            paused = false;
+        }
+    });
+
     introButtonHovered.setInteractive().on('pointerdown', function (pointer, localX, localY, event){
         if (paused)
         {
