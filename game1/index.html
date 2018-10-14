@@ -1,0 +1,491 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>MathLand</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var player;
+var stars;
+var bombs;
+var platforms;
+var cursors;
+var score = 0;
+var gameOver = false;
+var spawnedStar = 0
+var scoreText;
+var CanvasWidth = 800;
+var CanvasHeight = 600;
+var question;
+var QuestionData;
+var questionText;
+var Difficulty = 0;
+var timeLeft = 10;
+var additionIntroduced = false;
+var subtractionIntoruced = false;
+var multiplicationIntroduced = false;
+var divisionIntroduced = false;
+var introBG;
+var introButton;
+var introButtonHovered;
+var introButtonFocused;
+var buttonText;
+var paused = false;
+var gameOverLogo;
+var gameOverText;
+
+var config = {
+    type: Phaser.AUTO,
+    width: CanvasWidth,
+    height: CanvasHeight,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 300 },
+            debug: false
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
+
+var game = new Phaser.Game(config);
+
+function preload ()
+{
+    this.load.image('sky', 'imgs/sky.jpg');
+    this.load.image('game-over', 'imgs/game-over.png');
+    this.load.image('button', 'imgs/button-bg.png');
+    this.load.image('button-hover', 'imgs/button-bg-hover.png');
+    this.load.image('button-focus', 'imgs/button-bg-focus.png');
+    this.load.image('ground', 'imgs/platform.png');
+    this.load.image('intro-bg', 'imgs/intro-bg.jpg');
+    this.load.image('star_0', 'imgs/0.png');
+    this.load.image('star_1', 'imgs/1.png');
+    this.load.image('star_2', 'imgs/2.png');
+    this.load.image('star_3', 'imgs/3.png');
+    this.load.image('star_4', 'imgs/4.png');
+    this.load.image('star_5', 'imgs/5.png');
+    this.load.image('star_6', 'imgs/6.png');
+    this.load.image('star_7', 'imgs/7.png');
+    this.load.image('star_8', 'imgs/8.png');
+    this.load.image('star_9', 'imgs/9.png');
+    this.load.image('star_10', 'imgs/10.png');
+    this.load.image('star_11', 'imgs/11.png');
+    this.load.image('star_12', 'imgs/12.png');
+    this.load.image('star_13', 'imgs/13.png');
+    this.load.image('star_14', 'imgs/14.png');
+    this.load.image('star_15', 'imgs/15.png');
+    this.load.image('star_16', 'imgs/16.png');
+    this.load.image('star_17', 'imgs/17.png');
+    this.load.image('star_18', 'imgs/18.png');
+    this.load.image('star_19', 'imgs/19.png');
+    this.load.image('star_20', 'imgs/20.png');
+    this.load.spritesheet('dude', 'imgs/dude_idle.png', { frameWidth: 144, frameHeight: 221 });
+    this.load.spritesheet('dude_right', 'imgs/dude_right.png', { frameWidth: 150, frameHeight: 223 });
+    this.load.spritesheet('dude_left', 'imgs/dude_left.png', { frameWidth: 150, frameHeight: 223 });
+}
+
+function ReadTextFile(file, callback) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+            callback(rawFile.responseText);
+        }
+    }
+    rawFile.send(null);
+}
+
+function DetermineOperator(text)
+{
+    if (text.includes("+"))
+    {
+        return 0;
+    }
+    else if (text.includes("-"))
+    {
+        return 1;
+    }
+    else if (text.includes("x"))
+    {
+        return 2;
+    }
+    else if (text.includes("/"))
+    {
+        return 3;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+function create ()
+{
+    //  A simple background for our game
+    this.add.image(400, 300, 'sky').setScale(1.5);
+
+    //  The platforms group contains the ground and the 2 ledges we can jump on
+    platforms = this.physics.add.staticGroup();
+
+    //  Here we create the ground.
+    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+    platforms.create(400, 568, 'ground').setScale(1).refreshBody();
+
+    // The player and its settings
+    player = this.physics.add.sprite(100, 250, 'dude').setScale(0.5);
+
+    //  Player physics properties. Give the little guy a slight bounce.
+    player.setBounce(0.2);
+    player.setCollideWorldBounds(true);
+
+    //  Our player animations, turning, walking left and walking right.
+    this.anims.create({
+        key: 'idle',
+        frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 5 }),
+        frameRate: 20,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'left',
+        frames: this.anims.generateFrameNumbers('dude_left', { start: 0, end: 5 }),
+        frameRate: 20,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('dude_right', { start: 0, end: 5 }),
+        frameRate: 20,
+        repeat: -1
+    });
+
+    //  Input Events
+    cursors = this.input.keyboard.createCursorKeys();
+
+    //  The score
+    scoreText = this.add.text(16, 16, 'Puan: 0', { fontSize: '32px', fill: '#000' });
+
+    //  The time
+    timeText = this.add.text(CanvasWidth - 200, 16, 'Süre: '+timeLeft, { fontSize: '32px', fill: '#000' });
+    this.time.delayedCall(1000, timerTick, [], this)
+
+    //  Collide the player and the stars with the platforms
+    this.physics.add.collider(player, platforms);
+
+    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
+    //
+
+    ReadTextFile("data/quest.json", function(text){
+        QuestionData = JSON.parse(text);
+    });
+
+    setTimeout(function(){
+        question = QuestionData[Random(0, QuestionData.length-1)];
+    }, 1000);
+    
+    questionText = this.add.text(CanvasWidth/2, 520, "", { fontSize: '32px', fill: '#000' , float: 'left'}).setOrigin(0.5);
+    introBG = this.add.image(CanvasWidth/2, CanvasHeight/2, 'intro-bg').setScale(0.75);
+    introBG.visible = false;
+    introHeader = this.add.text(CanvasWidth/2, CanvasHeight/2, "", { fontSize: '24px', fill: '#000' }).setOrigin(0.5);
+    introHeader.visible = false;
+    introLine1 = this.add.text(CanvasWidth/2, CanvasHeight/2, "", { fontSize: '20px', fill: '#000' }).setOrigin(0.5);
+    introLine2 = this.add.text(CanvasWidth/2, CanvasHeight/2, "", { fontSize: '20px', fill: '#000' }).setOrigin(0.5);
+    introLine3 = this.add.text(CanvasWidth/2, CanvasHeight/2, "", { fontSize: '20px', fill: '#000' }).setOrigin(0.5);
+    introLine1.visible = false;
+    introLine2.visible = false;
+    introLine3.visible = false;
+
+    introButton = this.add.sprite(CanvasWidth/2, CanvasHeight/2 + 100, 'button').setOrigin(0.5).setInteractive();
+    introButtonHovered = this.add.sprite(CanvasWidth/2, CanvasHeight/2 + 100, 'button-hover').setOrigin(0.5).setInteractive();
+    introButtonHovered.visible = false;
+    introButtonFocused = this.add.sprite(CanvasWidth/2, CanvasHeight/2 + 100, 'button-focus').setOrigin(0.5).setInteractive();
+    introButtonFocused.visible = false;
+
+    introButton.on('pointerover', function (event){
+        if (paused)
+        {
+            introButton.visible = false;
+            introButtonHovered.visible = true;
+            introButtonFocused.visible = false;
+        }
+    });
+
+    introButtonHovered.on('pointerout', function (event){
+        if (paused)
+        {
+            introButton.visible = true;
+            introButtonHovered.visible = false;
+            introButtonFocused.visible = false;
+        }
+    });
+
+    introButtonHovered.on('pointerdown', function (event){
+        if (paused)
+        {
+            introButton.visible = false;
+            introButtonHovered.visible = false;
+            introButtonFocused.visible = true;
+        }
+    });
+
+    introButtonFocused.on('pointerover', function (event){
+        if (paused)
+        {
+            introButton.visible = false;
+            introButtonHovered.visible = false;
+            introButtonFocused.visible = true;
+        }
+    });
+
+    introButtonFocused.on('pointerout', function (event){
+        if (paused)
+        {
+            introButton.visible = true;
+            introButtonHovered.visible = false;
+            introButtonFocused.visible = false;
+        }
+    });
+
+    introButtonFocused.on('pointerup', function (event){
+        if (paused)
+        {
+            introButton.visible = false;
+            introButtonHovered.visible = false;
+            introButtonFocused.visible = false;
+            introBG.visible = false;
+            introHeader.visible = false;
+            introLine1.visible = false;
+            introLine2.visible = false;
+            introLine3.visible = false;
+            buttonText.visible = false;
+            paused = false;
+        }
+    });
+
+
+    introButton.visible = false;
+    buttonText = this.add.text(CanvasWidth/2, CanvasHeight/2 + 100, "Anladım.", { fontSize: '24px', fill: '#000' }).setOrigin(0.5);
+    buttonText.visible = false;
+
+    gameOverLogo = this.add.image(CanvasWidth/2, CanvasHeight/2, 'game-over').setScale(1.5).setOrigin(0.5);
+    gameOverLogo.visible = false;
+
+    gameOverText = this.add.text(CanvasWidth/2, CanvasHeight/2 + 75, "", { fontSize: '24px', fill: '#000' }).setOrigin(0.5);
+    gameOverText.visible = false;
+}
+
+function timerTick()
+{
+    if (timeLeft > 0 && !paused)
+    {
+        timeLeft--;
+        this.time.delayedCall(1000, timerTick, [], this)
+    }
+    else if (paused)
+    {
+        this.time.delayedCall(1000, timerTick, [], this)
+    }
+    else if (timeLeft <= 0)
+    {
+        gameOverText.setText('Toplam Puan: '+score);
+        gameOver = true
+        gameOverLogo.visible = true;
+        gameOverText.visible = true;
+        scoreText.visible = false;
+        timeText.visible = false;
+        questionText.visible = false;
+    }
+
+    timeText.setText('Süre: '+timeLeft)
+}
+
+function Random(lower, upper)
+{
+    return Phaser.Math.Between(lower, upper);
+}
+
+function StarFalled(star, ground)
+{
+    star.disableBody(true, true);
+    spawnedStar--;
+}
+
+function StarCollected (player, star)
+{
+    star.disableBody(true, true);
+    spawnedStar--;
+
+    if (star.answer == question.answer)
+    {
+        score += star.point;
+        scoreText.setText('Puan: ' + score);
+    }
+    else 
+    {
+        score -= star.point;
+        scoreText.setText('Puan: ' + score);
+    }
+    
+    Difficulty = score/50;
+    if (Difficulty < 0)
+    {
+        Difficulty = 0
+    }
+    question = QuestionData[Random(0, QuestionData.length-1)];
+}
+
+function Introduct(operator)
+{
+    if (operator == 0 && !additionIntroduced)
+    {
+        introHeader.setText("TOPLAMA (+) İŞLEMİ\n\n\n\n\n\n\n\n\n");
+        introLine1.setText("Toplama işleminin sembolü '+' dır.\n\n\n\n\n\n\n");
+        introLine2.setText("İki sayının toplanmasını sağlar.\n\n\n\n");
+        introLine3.setText("Örnek: 6 + 2 = 8\n");
+        introHeader.visible = true;
+        introButton.visible = true;
+        buttonText.visible = true;
+        introBG.visible = true;
+        introLine1.visible = true;
+        introLine2.visible = true;
+        introLine3.visible = true;
+        paused = true;
+
+        additionIntroduced = true;
+        return false;
+    } else if (operator == 1 && !subtractionIntoruced)
+    {
+        introHeader.setText("ÇIKARMA (-) İŞLEMİ\n\n\n\n\n\n\n\n\n");
+        introLine1.setText("Çıkarma işleminin sembolü '-' dir.\n\n\n\n\n\n\n");
+        introLine2.setText("İki sayının çıkarılmasını sağlar.\n\n\n\n");
+        introLine3.setText("Örnek: 7 - 3 = 4\n");
+        introHeader.visible = true;
+        introButton.visible = true;
+        buttonText.visible = true;
+        introBG.visible = true;
+        introLine1.visible = true;
+        introLine2.visible = true;
+        introLine3.visible = true;
+        paused = true;
+
+        subtractionIntoruced = true;
+        return false;
+    } else if (operator == 2 && !multiplicationIntroduced)
+    {
+        introHeader.setText("ÇARPMA (x) İŞLEMİ\n\n\n\n\n\n\n\n\n");
+        introLine1.setText("Çarpma işleminin sembolü 'x' dır.\n\n\n\n\n\n\n");
+        introLine2.setText("İki sayının çarpılmasını sağlar.\n\n\n\n");
+        introLine3.setText("Örnek: 4 x 3 = 12\n");
+        introHeader.visible = true;
+        introButton.visible = true;
+        buttonText.visible = true;
+        introBG.visible = true;
+        introLine1.visible = true;
+        introLine2.visible = true;
+        introLine3.visible = true;
+        paused = true;
+
+        multiplicationIntroduced = true;
+        return false;
+    } else if (operator == 3 && !divisionIntroduced)
+    {
+        introHeader.setText("BÖLME (/) İŞLEMİ\n\n\n\n\n\n\n\n\n");
+        introLine1.setText("Bölme işleminin sembolü '/' dür.\n\n\n\n\n\n\n");
+        introLine2.setText("İki sayının bölünmesini sağlar.\n\n\n\n");
+        introLine3.setText("Örnek: 9 / 3 = 3\n");
+        introHeader.visible = true;
+        introButton.visible = true;
+        buttonText.visible = true;
+        introBG.visible = true;
+        introLine1.visible = true;
+        introLine2.visible = true;
+        introLine3.visible = true;
+        paused = true;
+
+        divisionIntroduced = true;
+        return false;
+    } else {
+        paused = false;
+        introBG.visible = false;
+        introHeader.visible = false;
+        introLine1.visible = false;
+        introLine2.visible = false;
+        introLine3.visible = false;
+    }
+
+    return true;
+}
+
+function update ()
+{
+    if (gameOver || paused)
+    {
+        player.setVelocityX(0);
+        player.anims.play('idle', true);
+        return;
+    }
+
+    if (question != null) 
+    {
+        questionText.setText(question.text);
+        var operator = DetermineOperator(question.text);
+        var canContinue = Introduct(operator);
+
+        if (spawnedStar <= Difficulty && canContinue)
+        {
+            var lBound = Math.max(question.answer-3, 0);
+            var uBound = Math.min(question.answer+3, 20);
+            var rndInt = Random(lBound, uBound);
+            star = this.physics.add.sprite(Random(15, CanvasWidth-15), 0, 'star_'+rndInt).setScale(0.15);
+            star.answer = rndInt;
+            star.point = question.point;
+            spawnedStar++;
+            this.physics.add.overlap(star, platforms, StarFalled, null, this);
+            this.physics.add.overlap(player, star, StarCollected, null, this);
+        }
+    }
+
+    if (cursors.left.isDown && !paused && !gameOver)
+    {
+        player.setVelocityX(-500);
+        player.anims.play('left', true);
+    }
+    else if (cursors.right.isDown && !paused && !gameOver)
+    {
+        player.setVelocityX(500);
+        player.anims.play('right', true);
+    }
+    else
+    {
+        player.setVelocityX(0);
+        player.anims.play('idle', true);
+    }
+
+    var pointer = this.input.activePointer;
+    if (pointer.isDown) {
+        var touchX = pointer.x;
+        player.setVelocityX(500);
+        player.anims.play('right', true);
+    }
+}
+
+</script>
+
+</body>
+</html>

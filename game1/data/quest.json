@@ -1,0 +1,77 @@
+[{
+	"text": "2 + 3 = ?",
+	"answer": 5,
+	"point": 10
+}, {
+	"text": "1 + 2 = ?",
+	"answer": 3,
+	"point": 10
+}, {
+	"text": "5 - 3 = ?",
+	"answer": 2,
+	"point": 15
+}, {
+	"text": "3 x 2 = ?",
+	"answer": 6,
+	"point": 20
+}, {
+	"text": "6 - 1 = ?",
+	"answer": 5,
+	"point": 10
+}, {
+	"text": "10 / 5 = ?",
+	"answer": 2,
+	"point": 15
+}, {
+	"text": "7 + 4 = ?",
+	"answer": 11,
+	"point": 15
+}, {
+	"text": "6 x 3 = ?",
+	"answer": 18,
+	"point": 25
+}, {
+	"text": "4 + 3 = ?",
+	"answer": 7,
+	"point": 15
+}, {
+	"text": "1 - 1 = ?",
+	"answer": 0,
+	"point": 5
+}, {
+	"text": "1 + 0 = ?",
+	"answer": 1,
+	"point": 5
+}, {
+	"text": "8 + 9 = ?",
+	"answer": 17,
+	"point": 25
+}, {
+	"text": "4 - 3 = ?",
+	"answer": 1,
+	"point": 10
+}, {
+	"text": "15 / 3 = ?",
+	"answer": 5,
+	"point": 20
+}, {
+	"text": "12 - 3 = ?",
+	"answer": 9,
+	"point": 15
+}, {
+	"text": "9 + 4 = ?",
+	"answer": 13,
+	"point": 15
+}, {
+	"text": "4 + 4 = ?",
+	"answer": 8,
+	"point": 15
+}, {
+	"text": "10 + 7 = ?",
+	"answer": 17,
+	"point": 10
+}, {
+	"text": "7 x 2 = ?",
+	"answer": 14,
+	"point": 15
+}]
