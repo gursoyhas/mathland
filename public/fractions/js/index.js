@@ -12,26 +12,29 @@
 	var answers_skipped;
 	var gameOver = false;
 	var overText;
-	
+	var gameOverText;
+	var infoText;
+
 	var totalScore = 0;
 	
 	var config = {
         type: Phaser.AUTO,
         autoResize: true,
         parent: 'game',
-        width: 800,
-        height: 480,
+        width: window.innerWidth,
+        height: window.innerHeight,
 		physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: 500 },
             debug: false
         }
     },
         scene: {
             preload: preload,
             create: create,
-            update: update
+            update: update,
+			
         }
     };
     
@@ -60,17 +63,17 @@
     function create() {
         window.addEventListener('resize', resize);
         resize();
-
+		
         
-        this.bg = this.add.tileSprite(0, 0, 800, 480, 'sheet', 'background.png').setOrigin(0);
-        plane = this.physics.add.sprite(400, 300, 'sheet', 'planeBlue1.png').setScale(0.5);
+        this.bg = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'sheet', 'background.png').setOrigin(0);
+        plane = this.physics.add.sprite(window.innerWidth/10, window.innerHeight/2, 'sheet', 'planeBlue1.png');
 		
 		
-		star1 = this.physics.add.sprite(670,150,'star').setScale(2);
+		star1 = this.physics.add.sprite(window.innerWidth* 3/5,window.innerHeight * 1/3,'star').setScale(4);
 		
 		
-		star2 = this.physics.add.sprite(670,300,'star').setScale(2);
-		style = { font: "10px Arial", fill: "#000000", wordWrap: true, wordWrapWidth: star1.width, align: "center" , fontStyle :"bold" , lineSpacing:-5};
+		star2 = this.physics.add.sprite(window.innerWidth* 3/5,window.innerHeight* 2/3,'star').setScale(4);
+		style = { font: "20px Arial", fill: "#000000", wordWrap: true, wordWrapWidth: star1.width, align: "center" , fontStyle :"bold" , lineSpacing:-5};
 		star1_value1  = Random();
 		star1_value2  = Random();
 		star2_value1  = Random();
@@ -83,11 +86,15 @@
 		//Input Events
 		cursors = this.input.keyboard.createCursorKeys();
 		
-		answers_true = this.add.text(16, 16, 'True Answers: 0', { fontSize: '16px', fill: '#000' });
-		answers_false = this.add.text(16, 32, 'False Answers: 0', { fontSize: '16px', fill: '#000' });
-		answers_skipped = this.add.text(16, 48, 'Skipped Answers: 0', { fontSize: '16px', fill: '#000' });
+		answers_true = this.add.text(16, 16, 'Doğru Yanıt: 0', { fontSize: '16px', fill: '#000' });
+		answers_false = this.add.text(16, 32, 'Yanlış Yanıt: 0', { fontSize: '16px', fill: '#000' });
+		answers_skipped = this.add.text(16, 48, 'Boş Geçilen Yanıt: 0', { fontSize: '16px', fill: '#000' });
 		totalScore = (trueAnswers* 10) - (falseAnswers * 10 ) - (skipped * 5 ) ;
-		overText = this.add.text (620,16, "Total Score: "  +  totalScore ,{ fontSize: '16px', fill: '#000' } );
+		overText = this.add.text (window.innerWidth-200,16, "Toplam Puan: "  +  totalScore ,{ fontSize: '16px', fill: '#000' } );
+		gameOverText = this.add.text(window.innerWidth* 2/5, window.innerHeight* 2/5, 'Oyun bitti. \nYeniden başlamak için ekrana dokun.' , {fill : 'black', lineSpacing:20, font:'20px Arial', fontStyle: 'bold'});
+		gameOverText.visible = false;
+		infoText = this.add.text (window.innerWidth*2/5,16, "Daha büyük sayıya\nsahip olan yıldızı\nalarak puan topla" ,{ fontSize: '16px', fill: '#000' } );
+
     } 
 
 function Star1Collected (plane, star1)
@@ -107,10 +114,11 @@ function Star1Collected (plane, star1)
 	else {
 		falseAnswers++;		}
 		
-		answers_true.setText('True Answers: ' + trueAnswers);
-		answers_false.setText('False Answers: ' + falseAnswers);
+		answers_true.setText('Doğru Yanıt: ' + trueAnswers);
+		answers_false.setText('Yanlış Yanıt: ' + falseAnswers);
 		totalScore = (trueAnswers* 10) - (falseAnswers * 10 ) - (skipped * 5 ) ;
-		overText.setText ("Total Score: "  +  totalScore );
+		overText.setText ("Toplam Puan: "  +  totalScore );
+		infoText.visible = false;
 	
 
 }
@@ -130,10 +138,11 @@ function Star2Collected (plane, star2)
 		else {
 		falseAnswers++;		}
 		
-		answers_true.setText('True Answers: ' + trueAnswers);
-		answers_false.setText('False Answers: ' + falseAnswers);
+		answers_true.setText('Doğru Yanıt: ' + trueAnswers);
+		answers_false.setText('Yanlış Yanıt: ' + falseAnswers);
 		totalScore = (trueAnswers* 10) - (falseAnswers * 10 ) - (skipped * 5 ) ;
-		overText.setText ("Total Score: "  +  totalScore );
+		overText.setText ("Toplam Puan: "  +  totalScore );
+		infoText.visible = false;
 }
 
 function StarsSkipeed ()
@@ -144,9 +153,10 @@ function StarsSkipeed ()
 	text2.destroy();
 	createdStars = false;
 	skipped++;
-	answers_skipped.setText('Skipped Answers: ' + skipped);
+	answers_skipped.setText('Boş Geçilen Yanıt: ' + skipped);
 	totalScore = (trueAnswers* 10) - (falseAnswers * 10 ) - (skipped * 5 ) ;
-	overText.setText ("Total Score: "  +  totalScore );
+	overText.setText ("Toplam Puan: "  +  totalScore );
+	infoText.visible = false;
 
 }
 
@@ -156,6 +166,7 @@ function game_over () {
 	star2.disableBody(true, true);
 	text1.destroy();
 	text2.destroy();
+	
 }
 
 function Random () {
@@ -168,16 +179,20 @@ function restart () {
 	falseAnswers = 0;
 	skipped = 0;
 	plane.destroy();
+	gameOverText.visible = false;
 	createdStars = false;
-	answers_true.setText('True Answers: 0');
-	answers_false.setText('False Answers: 0');
-	answers_skipped.setText('Skipped Answers: 0' );
-	overText.setText('Total Score: 0');
+	answers_true.setText('Doğru Yanıt: 0');
+	answers_false.setText('Yanlış Yanıt: 0');
+	answers_skipped.setText('Boş Geçilen Yanıt: 0' );
+	overText.setText('Toplam Puan: 0');
+	infoText.visible = false;
+	
 }
     function update() {
 		
-		if (gameOver) {
 		
+		if (gameOver) {
+		gameOverText.visible = true;
 		
 		
 		
@@ -186,18 +201,17 @@ function restart () {
 			
 			restart();
 			
-			plane = this.physics.add.sprite(400, 300, 'sheet', 'planeBlue1.png').setScale(0.5);
+			plane = this.physics.add.sprite(window.innerWidth/10, window.innerHeight/2, 'sheet', 'planeBlue1.png');
 		}
 		return;
 		}
-		
-		
+		gameOver.visible = false;
         this.bg.tilePositionX += 5;
 
 		if (createdStars == false)  {
-		star1 = this.physics.add.sprite(670,150,'star').setScale(2);
+		star1 = this.physics.add.sprite(window.innerWidth* 3/5,window.innerHeight * 1/3,'star').setScale(4);
 		
-		star2 = this.physics.add.sprite(670,300,'star').setScale(2);
+		star2 = this.physics.add.sprite(window.innerWidth* 3/5,window.innerHeight * 2/3,'star').setScale(4);
 		star1_value1  = Random();
 		star1_value2  = Random();
 		star2_value1  = Random();
@@ -211,7 +225,7 @@ function restart () {
 		
 		}
 		
-		if (plane.y >= 500 ) {
+		if (plane.y >= window.innerHeight ) {
 			game_over();
 			
 		}
@@ -219,21 +233,21 @@ function restart () {
 		
 		StarsSkipeed();
 		}
-		star1.setVelocityX(-50);
-		star1.body.setGravityY(-300);
-		star2.setVelocityX(-50);
-		star2.body.setGravityY(-300);
+		star1.setVelocityX(-150);
+		star1.body.setGravityY(-500);
+		star2.setVelocityX(-150);
+		star2.body.setGravityY(-500);
 		
-		text1.x = Math.floor(star1.x - 5 );
-		text1.y = Math.floor(star1.y - star1.height/2 );
-		text2.x = Math.floor(star2.x -5 );
-		text2.y = Math.floor(star2.y - star2.height/2  );
+		text1.x = Math.floor(star1.x - star1.width/2 );
+		text1.y = Math.floor(star1.y - star1.height/2*3 +4 );
+		text2.x = Math.floor(star2.x -star1.width/2 );
+		text2.y = Math.floor(star2.y - star2.height/2*3+4);
 		
 		this.physics.add.overlap(plane, star1, Star1Collected, null, this);
 		this.physics.add.overlap(plane, star2, Star2Collected, null, this);
 		if (cursors.up.isDown || game.input.activePointer.isDown)
 		{
-			plane.setVelocityY(-120);
+			plane.setVelocityY(-200);
 		}
     }
 
