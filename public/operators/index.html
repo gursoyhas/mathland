@@ -471,7 +471,7 @@ function update ()
             var lBound = Math.max(question.answer-3, 0);
             var uBound = Math.min(question.answer+3, 20);
             var rndInt = Random(lBound, uBound);
-            star = this.physics.add.sprite(Random(15, CanvasWidth-15), 0, 'star_'+rndInt).setScale(0.15);
+            star = this.physics.add.sprite(Random(15, CanvasWidth-15), 0, 'star_'+rndInt).setScale(0.2);
             star.answer = rndInt;
             star.point = question.point;
             spawnedStar++;
