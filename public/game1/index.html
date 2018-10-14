@@ -478,34 +478,20 @@ function update ()
         }
     }
 
-    if (cursors.left.isDown && !paused && !gameOver)
-    {
-        player.setVelocityX(-500);
-        player.anims.play('left', true);
-    }
-    else if (cursors.right.isDown && !paused && !gameOver)
-    {
-        player.setVelocityX(500);
-        player.anims.play('right', true);
-    }
-    else
-    {
-        player.setVelocityX(0);
-        player.anims.play('idle', true);
-    }
-
     var pointer = this.input.activePointer;
     if (pointer.isDown) {
         var touchX = pointer.x;
-        if (touchX > player.x){
-            player.setVelocityX(500);
-            player.anims.play('right', true);
-        } else if (touchX < player.x){
-            player.setVelocityX(-500);
-            player.anims.play('left', true);
-        } else {
+        var pX = Math.round(player.x);
+
+        if (Math.abs(touchX-pX) < 10){
             player.setVelocityX(0);
             player.anims.play('idle', true);
+        } else if (touchX > pX){
+            player.setVelocityX(500);
+            player.anims.play('right', true);
+        } else if (touchX < pX){
+            player.setVelocityX(-500);
+            player.anims.play('left', true);
         }
     }
 }
