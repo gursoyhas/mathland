@@ -493,6 +493,9 @@ function update ()
             player.setVelocityX(-500);
             player.anims.play('left', true);
         }
+    } else {
+        player.setVelocityX(0);
+        player.anims.play('idle', true);
     }
 }
 
