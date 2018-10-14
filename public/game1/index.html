@@ -236,7 +236,7 @@ function create ()
     });
 
 
-    gameObject.setInteractive().on('pointerup', function(pointer, localX, localY, event){
+    introButton.setInteractive().on('pointerup', function(pointer, localX, localY, event){
         if (paused)
         {
             introButton.visible = false;
