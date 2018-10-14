@@ -23,8 +23,8 @@ var score = 0;
 var gameOver = false;
 var spawnedStar = 0
 var scoreText;
-var CanvasWidth = 800;
-var CanvasHeight = 600;
+var CanvasWidth = window.screen.width;
+var CanvasHeight = window.screen.height;
 var question;
 var QuestionData;
 var questionText;
@@ -137,14 +137,14 @@ function DetermineOperator(text)
 function create ()
 {
     //  A simple background for our game
-    this.add.image(400, 300, 'sky').setScale(1.5);
+    this.add.image(CanvasWidth/2, CanvasHeight/2-80, 'sky').setScale(2.3).setOrigin(0.5);;
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = this.physics.add.staticGroup();
 
     //  Here we create the ground.
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    platforms.create(400, 568, 'ground').setScale(1).refreshBody();
+    platforms.create(CanvasWidth/2, CanvasHeight-160, 'ground').setScale(1).setOrigin(0.5).refreshBody();
 
     // The player and its settings
     player = this.physics.add.sprite(100, 250, 'dude').setScale(0.5);
@@ -199,7 +199,7 @@ function create ()
         question = QuestionData[Random(0, QuestionData.length-1)];
     }, 1000);
     
-    questionText = this.add.text(CanvasWidth/2, 520, "", { fontSize: '32px', fill: '#000' , float: 'left'}).setOrigin(0.5);
+    questionText = this.add.text(CanvasWidth/2, CanvasHeight-160, "", { fontSize: '32px', fill: '#000' , float: 'left'}).setOrigin(0.5);
     introBG = this.add.image(CanvasWidth/2, CanvasHeight/2, 'intro-bg').setScale(0.75);
     introBG.visible = false;
     introHeader = this.add.text(CanvasWidth/2, CanvasHeight/2, "", { fontSize: '24px', fill: '#000' }).setOrigin(0.5);
